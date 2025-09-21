@@ -1,0 +1,239 @@
+{% extends 'admin/base.html' %} 
+{% load static %}
+{% block title %}Admin Profile{% endblock %} 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/admin/profile.css' %}">
+    {% endblock %}
+
+</head>
+<body>
+  {% block content %}
+    <div class="admin-profile-container">
+        
+        <div class="profile-header">
+            <div class="profile-header-content">
+                <div class="avatar-section">
+                    <div class="avatar-container">
+                        <img src="{{ user.profile.image.url }}" alt="Admin Avatar" class="avatar-image">
+                    </div>
+                </div>
+                
+                <div class="profile-info">
+                    <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
+                    <div class="profile-role-container">
+                        <i class="fas fa-shield-halved profile-details-header-icon"></i>
+                        <span class="profile-role-text">{{ user.profile.qualification }}</span>
+                    </div>
+                    <div class="profile-email-container">
+                        <i class="fas fa-envelope profile-email-icon"></i>
+                        <span>{{ user.email }}</span>
+                    </div>
+                </div>
+                
+                <div class="edit-profile-btn">
+                    <button class="edit-profile-button" onclick="openEditModal('{{ user.first_name }} {{ user.last_name }}', '{{ user.email }}', '{{ user.profile.qualification }}', '{{ user.profile.phone }}', '{{ user.profile.image.url }}', {{ user.id }})"> 
+                        <i class="fas fa-pen-to-square"></i>
+                        Edit Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            
+            <div class="profile-details-card">
+                <h2 class="profile-details-header">
+                    <i class="fas fa-circle-user profile-details-header-icon"></i>
+                    Profile Details
+                </h2>
+                
+                <div class="details-grid">
+                    
+                    <div class="detail-field">
+                        <label class="detail-field-label">
+                            <i class="fas fa-at detail-field-label-icon"></i>
+                            Username
+                        </label>
+                        <div class="detail-field-value">
+                            <span class="detail-field-text">{{user.username}}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-field">
+                        <label class="detail-field-label">
+                            <i class="fas fa-user detail-field-label-icon"></i>
+                            Full Name
+                        </label>
+                        <div class="detail-field-value">
+                            <span class="detail-field-text">{{ user.first_name }} {{ user.last_name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-field">
+                        <label class="detail-field-label">
+                            <i class="fas fa-envelope detail-field-label-icon"></i>
+                            Email Address
+                        </label>
+                        <div class="detail-field-value">
+                            <span class="detail-field-text">{{ user.email }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-field">
+                        <label class="detail-field-label">
+                            <i class="fas fa-phone detail-field-label-icon"></i>
+                            Phone Number
+                        </label>
+                        <div class="detail-field-value">
+                            <span class="detail-field-text">+91 {{ user.profile.phone }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-field">
+                        <label class="detail-field-label">
+                            <i class="fas fa-building detail-field-label-icon"></i>
+                            Qualification
+                        </label>
+                        <div class="detail-field-value">
+                            <span class="detail-field-text">{{ user.profile.qualification }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <div class="actions-card">
+                    <h3 class="actions-card-header">
+                        <i class="fas fa-right-from-bracket actions-card-header-icon"></i>
+                        Session
+                    </h3>
+                    <form action="{% url 'logout' %}" method="post">{% csrf_token %}
+                    <button class="logout-button">
+                        <i class="fas fa-right-from-bracket"></i>
+                        Logout
+                    </button>
+                    </form>
+                </div>
+
+                <div class="actions-card">
+                    <h3 class="actions-card-header">
+                        <i class="fas fa-circle-info actions-card-header-icon"></i>
+                        System Info
+                    </h3>
+                    
+                    <div class="system-info-list">
+                        <div class="system-info-item">
+                            <span class="system-info-label">Last Login:</span>
+                            <span class="system-info-value">
+                              {% load tz %}
+                              {% timezone "Asia/Kolkata" %}
+                                  {{ user.last_login|date:"M j, Y" }} at {{ user.last_login|time:"g:i A" }}
+                              {% endtimezone %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <!-- Edit Admin Modal -->
+    <div id="edit-admin-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" id="edit-modal-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <h1 class="modal-title">Edit Profile</h1> 
+            </div>
+            
+            <div class="modal-content">
+                <form id="edit-admin-form" class="admin-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if edit_form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ edit_form.non_field_errors }}
+                    </div>
+                    {% endif %}
+                    <!-- Profile Image Upload -->
+                    <div class="image-upload-section">
+                        <div class="image-upload-container">
+                            <div class="image-upload-circle" id="edit-image-preview-container">
+                                <i class="fas fa-camera" id="edit-image-placeholder" style="color: white; font-size: 1.5rem;"></i>
+                                <img id="edit-image-preview" src="#" alt="Preview" />
+                            </div>
+                           {# Render edit image with stable id for JS hooks #}
+                           {{ edit_form.image }}
+                           <!-- Hidden input to preserve existing image filename when no new file is uploaded -->
+                           <input type="hidden" name="existing_image" id="existing-image-input" value="{{ user.profile.image.name }}">
+                          <!-- Where to redirect after successful edit (profile or manage_admins) -->
+                          <input type="hidden" name="next" id="edit-next-input" value="profile">
+                            <div class="image-upload-plus">
+                                <i class="fas fa-pen" style="font-size: 0.875rem;"></i>
+                            </div>
+                        </div>
+                        <p class="image-upload-text">Update profile picture</p>
+                         {% if edit_form.image.errors %}
+                            <div class="form-errors">{{ edit_form.image.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ edit_form.first_name.label_tag }}
+                            {{ edit_form.first_name }}
+                            {% if edit_form.first_name.errors %}<div class="form-errors">{{ edit_form.first_name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ edit_form.last_name.label_tag }}
+                            {{ edit_form.last_name }}
+                            {% if edit_form.last_name.errors %}<div class="form-errors">{{ edit_form.last_name.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ edit_form.email.label_tag }}
+                            {{ edit_form.email }}
+                            {% if edit_form.email.errors %}<div class="form-errors">{{ edit_form.email.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ edit_form.phone.label_tag }}
+                            {{ edit_form.phone }}
+                            {% if edit_form.phone.errors %}<div class="form-errors">{{ edit_form.phone.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ edit_form.qualification.label_tag }}
+                        {{ edit_form.qualification }}
+                        {% if edit_form.qualification.errors %}<div class="form-errors">{{ edit_form.qualification.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ edit_form.password1.label_tag }}
+                            {{ edit_form.password1 }}
+                            {% if edit_form.password1.errors %}<div class="form-errors">{{ edit_form.password1.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ edit_form.password2.label_tag }}
+                            {{ edit_form.password2 }}
+                            {% if edit_form.password2.errors %}<div class="form-errors">{{ edit_form.password2.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="submit-section">
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-save" style="margin-right: 0.5rem;"></i>
+                            Update Admin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/admin/profile.js' %}"></script>
+    {% endblock %}
+</body>
+</html>

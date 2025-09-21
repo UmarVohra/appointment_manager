@@ -1,0 +1,263 @@
+{% extends 'admin/base.html' %} 
+{% load static %}
+{% block title %}Admin Management{% endblock %} 
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/admin/manage-admin.css' %}">
+{% endblock %}
+<body>
+    {% block content %}
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Header -->
+        <div id="page-header">
+            <h1 class="page-title">Manage Administrators</h1>
+            <p class="page-subtitle">Add, edit, and manage administrator accounts</p>
+        </div>
+
+        <!-- Add Admin Button -->
+        <div id="add-admin-section">
+            <button id="add-admin-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>Add Administrator</span>
+            </button>
+        </div>
+
+        <!-- Admin Management Card -->
+        <div id="admin-card">
+            <!-- Admin List -->
+            <div id="admin-list">
+                <h3 class="admin-list-title">Current Administrators</h3>
+                
+                <div class="admin-items">
+                    <!-- Admin Item 1 -->
+                     {% for admin in admins %}
+                    <div class="admin-item">
+                        <div class="admin-info">
+                            <img src="{{ admin.profile.image.url }}" alt="Admin" class="admin-avatar">
+                            <div class="admin-details">
+                                <h4>{{ admin.first_name }} {{ admin.last_name }} </h4>
+                                <p class="admin-email">{{ admin.email }}</p>
+                                <p class="admin-qualification">{{ admin.profile.qualification }}</p>
+                            </div>
+                        </div>
+                        <div class="admin-actions">
+                            {% if admin.profile.is_doctor %}
+                                <form method="post" action="{% url 'remove_doctor' admin.id %}">
+                                    {% csrf_token %}
+                                    <button class="remove-doctor" type="submit"><span class="green-dot"></span>is Doctor</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{% url 'make_doctor' admin.id %}">
+                                    {% csrf_token %}
+                                    <button class="make-doctor" type="submit"><span class="red-dot"></span>Admin</button>
+                                </form>
+                            {% endif %}
+                            <button class="edit-button" onclick="openEditModal('{{ admin.first_name|escapejs }} {{ admin.last_name|escapejs }}', '{{ admin.email|escapejs }}', '{{ admin.profile.qualification|default:''|escapejs }}', '{{ admin.profile.phone|default:''|escapejs }}', '{{ admin.profile.image.url|default:''|escapejs }}', {{ admin.id }})">
+                                <i class="fas fa-pen-to-square"></i>
+                                Edit
+                            </button>
+                            <form class="delete-admin-form" method="post" action="{% url 'delete_admin' admin.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="button" class="delete-button" onclick="confirmAndSubmitDelete(this)">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div id="add-admin-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" id="add-modal-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <h1 class="modal-title">Add New Admin</h1>
+            </div>
+            
+            <div class="modal-content">
+                <form id="add-admin-form" class="admin-form" method="post" enctype="multipart/form-data" action="{% url 'add_admin' %}">
+                    {% csrf_token %}
+                    {% if add_form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ add_form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Profile Image Upload -->
+                    <div class="image-upload-section">
+                        <div class="image-upload-container">
+                            <div class="image-upload-circle" id="add-image-preview-container">
+                                <i class="fas fa-camera" id="add-image-placeholder" style="color: white; font-size: 1.5rem;"></i>
+                                <img id="add-image-preview" src="#" alt="Preview" />
+                            </div>
+                            {{ add_form.image }}
+                            <div class="image-upload-plus">
+                                <i class="fas fa-plus" style="font-size: 0.875rem;"></i>
+                            </div>
+                        </div>
+                        <p class="image-upload-text">Upload profile picture</p>
+                        {% if add_form.image.errors %}
+                            <div class="form-errors">{{ add_form.image.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ add_form.first_name.label_tag }}
+                            {{ add_form.first_name }}
+                            {% if add_form.first_name.errors %}<div class="form-errors">{{ add_form.first_name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ add_form.last_name.label_tag }}
+                            {{ add_form.last_name }}
+                            {% if add_form.last_name.errors %}<div class="form-errors">{{ add_form.last_name.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ add_form.email.label_tag }}
+                            {{ add_form.email }}
+                            {% if add_form.email.errors %}<div class="form-errors">{{ add_form.email.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ add_form.phone.label_tag }}
+                            {{ add_form.phone }}
+                            {% if add_form.phone.errors %}<div class="form-errors">{{ add_form.phone.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ add_form.qualification.label_tag }}
+                        {{ add_form.qualification }}
+                        {% if add_form.qualification.errors %}<div class="form-errors">{{ add_form.qualification.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ add_form.password1.label_tag }}
+                            {{ add_form.password1 }}
+                            {% if add_form.password1.errors %}<div class="form-errors">{{ add_form.password1.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ add_form.password2.label_tag }}
+                            {{ add_form.password2 }}
+                            {% if add_form.password2.errors %}<div class="form-errors">{{ add_form.password2.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="submit-section">
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-user-plus" style="margin-right: 0.5rem;"></i>
+                            Add Admin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Admin Modal -->
+    <div id="edit-admin-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close" id="edit-modal-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="modal-header">
+                <h1 class="modal-title">Edit Administrator</h1>
+            </div>
+            
+            <div class="modal-content">
+                <form id="edit-admin-form" class="admin-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if edit_form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ edit_form.non_field_errors }}
+                    </div>
+                    {% endif %}
+                    <!-- Profile Image Upload -->
+                    <div class="image-upload-section">
+                        <div class="image-upload-container">
+                            <div class="image-upload-circle" id="edit-image-preview-container">
+                                <i class="fas fa-camera" id="edit-image-placeholder" style="color: white; font-size: 1.5rem;"></i>
+                                <img id="edit-image-preview" src="#" alt="Preview" />
+                            </div>
+                           {# Render edit image with stable id for JS hooks #}
+                           {{ edit_form.image }}
+                            <div class="image-upload-plus">
+                                <i class="fas fa-pen" style="font-size: 0.875rem;"></i>
+                            </div>
+                        </div>
+                        <p class="image-upload-text">Update profile picture</p>
+                         {% if edit_form.image.errors %}
+                            <div class="form-errors">{{ edit_form.image.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ edit_form.first_name.label_tag }}
+                            {{ edit_form.first_name }}
+                            {% if edit_form.first_name.errors %}<div class="form-errors">{{ edit_form.first_name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ edit_form.last_name.label_tag }}
+                            {{ edit_form.last_name }}
+                            {% if edit_form.last_name.errors %}<div class="form-errors">{{ edit_form.last_name.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ edit_form.email.label_tag }}
+                            {{ edit_form.email }}
+                            {% if edit_form.email.errors %}<div class="form-errors">{{ edit_form.email.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ edit_form.phone.label_tag }}
+                            {{ edit_form.phone }}
+                            {% if edit_form.phone.errors %}<div class="form-errors">{{ edit_form.phone.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ edit_form.qualification.label_tag }}
+                        {{ edit_form.qualification }}
+                        {% if edit_form.qualification.errors %}<div class="form-errors">{{ edit_form.qualification.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ edit_form.password1.label_tag }}
+                            {{ edit_form.password1 }}
+                            {% if edit_form.password1.errors %}<div class="form-errors">{{ edit_form.password1.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ edit_form.password2.label_tag }}
+                            {{ edit_form.password2 }}
+                            {% if edit_form.password2.errors %}<div class="form-errors">{{ edit_form.password2.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="submit-section">
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-save" style="margin-right: 0.5rem;"></i>
+                            Update Admin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/admin/manage-admin.js' %}"></script>
+    {% endblock %}

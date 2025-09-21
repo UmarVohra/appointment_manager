@@ -1,0 +1,548 @@
+{% extends 'admin/base.html' %} 
+{% load static %}
+{% block title %}Dashboard{% endblock %} 
+{% block style %}  
+    <link rel="stylesheet" href="{% static 'css/admin/dashboard.css' %}">
+{% endblock %}   
+{% block content %}
+    <!-- Main Content -->
+    <div id="main-content" class="section-clickable">
+      <!-- Header Section -->
+      <div id="dashboard-header" class="section-clickable">
+        <div class="header-content">
+          <div>
+            <h2>Doctor Appointments</h2>
+            <p>Manage and track student health appointments</p>
+          </div>
+          <div class="button-group">
+            <button class="btn-primary" id="addAppointmentBtn">
+              <i class="fas fa-plus btn-icon"></i>
+              Add Appointment
+            </button>
+            <button class="btn-secondary" onclick="window.location.href='{% url 'download_appointments' %}'">
+              <i class="fas fa-download btn-icon"></i>
+              Download Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div id="stats-section" class="section-clickable">
+        <div class="stat-card">
+          <div class="stat-card-content">
+              <div class="stat-card-text">
+              <p>Today's Appointments</p>
+              <p>{{ today_count }}</p>
+            </div>
+            <div class="stat-card-icon blue">
+              <i class="fas fa-calendar-day"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-content">
+              <div class="stat-card-text">
+              <p>This Week</p>
+              <p>{{ week_count }}</p>
+            </div>
+            <div class="stat-card-icon green">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-content">
+              <div class="stat-card-text">
+              <p>Pending</p>
+              <p>{{ pending_count }}</p>
+            </div>
+            <div class="stat-card-icon yellow">
+              <i class="fas fa-clock"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-content">
+              <div class="stat-card-text">
+              <p>Completed</p>
+              <p>{{ completed_count }}</p>
+            </div>
+            <div class="stat-card-icon green-alt">
+              <i class="fas fa-circle-check"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointments Table/Cards -->
+      <div id="appointments-section" class="section-clickable">
+        <div class="appointments-header">
+          <div class="appointments-header-content">
+            <h3>Today's Appointments</h3>
+            <form method="get" class="mb-3 d-flex gap-2">
+        <input type="text" name="q" placeholder="Search Appointments" value="{{ request.GET.q }}" class="form-control">
+        <select name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="pending" {% if request.GET.status == "pending" %}selected{% endif %}>Pending</option>
+            <option value="completed" {% if request.GET.status == "completed" %}selected{% endif %}>Completed</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Table View -->
+        <div id="desktop-table" class="section-clickable">
+          <table id="appointmentsTable">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Age</th>
+                <th>Enrollment</th>
+                <th>Department</th>
+                <th>Reason</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>date</th>
+                <th>Slot</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for appointment in page_obj %}
+                <tr
+                  data-id="{{ appointment.id}}"
+                  data-fullname="{{ appointment.fullname }}"
+                  data-age="{{ appointment.age }}"
+                  data-enroll_no="{{ appointment.enroll_no }}"
+                  data-department="{{ appointment.department }}"
+                  data-reason="{{ appointment.reason }}"
+                  data-phone="{{ appointment.phone }}"
+                  data-email="{{ appointment.email }}"
+                  data-date="{{ appointment.date }}"
+                  data-slot="{{ appointment.slot }}"
+                  data-status="{{ appointment.status }}"
+                  data-remarks="{{ appointment.remarks }}"
+                >
+                  <td>
+                    <div class="student-info">
+                      <span>{{ appointment.fullname }}</span>
+                    </div>
+                  </td>
+                  <td class="table-text">{{ appointment.age }}</td>
+                  <td class="table-text">{{ appointment.enroll_no }}</td>
+                  <td class="table-text">{{ appointment.get_department_display }}</td>
+                  <td class="table-text">{{ appointment.reason }}</td>
+                  <td class="table-text">{{ appointment.phone }}</td>
+                  <td class="table-text">{{ appointment.email }}</td>
+                  <td class="table-text">{{ appointment.date }}</td>
+                  <td class="table-text">{{ appointment.slot }}</td>
+                  <td>
+                    <span class="status-badge {{appointment.status}}">{{appointment.status}}</span>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center">No appointments found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div id="mobile-cards" class="section-clickable">
+          {% for appointment in page_obj %}
+          <div class="appointment-card"
+                  data-id="{{ appointment.id}}"
+                  data-fullname="{{ appointment.fullname }}"
+                  data-age="{{ appointment.age }}"
+                  data-enroll_no="{{ appointment.enroll_no }}"
+                  data-department="{{ appointment.department }}"
+                  data-reason="{{ appointment.reason }}"
+                  data-phone="{{ appointment.phone }}"
+                  data-email="{{ appointment.email }}"
+                  data-date="{{ appointment.date }}"
+                  data-slot="{{ appointment.slot }}"
+                  data-status="{{ appointment.status }}"
+                  data-remarks="{{ appointment.remarks }}"
+          >
+            <div class="appointment-card-header">
+              <div class="appointment-card-student">
+                <div>
+                  <h4>{{ appointment.fullname }}</h4>
+                  <p>Age: {{ appointment.age }} • {{ appointment.enroll_no }}</p>
+                </div>
+              </div>
+              <span class="status-badge {{appointment.status}}">{{appointment.status}}</span>
+            </div>
+            <div class="appointment-card-details">
+              <p>
+                <span>Department:</span> {{ appointment.get_department_display }}
+              </p>
+              <p>
+                <span>Reason:</span> {{ appointment.reason }}
+              </p>
+              <p>
+                <span>Contact:</span> +91 {{ appointment.phone }}
+              </p>
+            </div>
+          </div>
+              {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Appointment Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            <div class="modal-header-icon">
+              <i class="fas fa-edit"></i>
+            </div>
+            Edit Appointment
+          </h3>
+          <button type="button" class="modal-close" id="closeBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <form id="editAppointmentForm" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="appointment_id" id="appointment_id" value="{{ form.instance.pk|default:'' }}">
+            {% if form.errors %}
+              <div class="form-errors" style="border:1px solid #f5c6cb;background:#f8d7da;color:#721c24;padding:0.75rem;margin-bottom:1rem;border-radius:4px;">
+                {% if form.non_field_errors %}
+                  <div class="non-field-errors">
+                    {% for err in form.non_field_errors %}
+                      <p style="margin:0 0 .25rem;">{{ err }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <ul style="margin:.25rem 0 0;padding-left:1.25rem;">
+                  {% for field, errors in form.errors.items %}
+                    <li style="margin-bottom:.25rem;"><strong>{{ field }}</strong>
+                      <ul style="margin:.25rem 0 0;padding-left:1rem;">
+                        {% for e in errors %}
+                          <li>{{ e }}</li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            
+            <!-- Name Field -->
+            <div class="form-group">
+              <label for="{{ form.fullname.id_for_label }}" class="form-label">Full Name</label>
+              <div class="input-container">
+                <i class="fas fa-user input-icon"></i>
+                {{ form.fullname }}
+              </div>
+            </div>
+
+            <!-- Age and Enrollment Row -->
+            <div class="form-row form-group">
+              <div>
+                <label for="{{ form.age.id_for_label }}" class="form-label">Age</label>
+                <div class="input-container">
+                  <i class="fas fa-calendar-days input-icon"></i>
+                  {{ form.age }}
+                </div>
+              </div>
+              <div>
+                <label for="{{ form.enroll_no.id_for_label }}" class="form-label">Enrollment No.</label>
+                <div class="input-container">
+                  <i class="fas fa-id-card input-icon"></i>
+                  {{ form.enroll_no }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Department Field -->
+            <div class="form-group">
+              <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+              <div class="input-container">
+                <i class="fas fa-building input-icon"></i>
+                {{ form.department }}
+                <i class="fas fa-chevron-down select-icon"></i>
+              </div>
+            </div>
+
+            <!-- Date and Slot Row -->
+            <div class="form-row form-group">
+              <div>
+                <label for="{{ form.date.id_for_label }}" class="form-label">Date</label>
+                <div class="input-container">
+                  <i class="fas fa-calendar input-icon"></i>
+                  {{ form.date }}
+                </div>
+              </div>
+              <div>
+                <label for="{{ form.slot.id_for_label }}" class="form-label">Slot</label>
+                <div class="input-container">
+                  <i class="fas fa-clock input-icon"></i>
+                  {{ form.slot }}
+                  <i class="fas fa-chevron-down select-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Info Row -->
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label">Phone Number</label>
+                <div class="input-container with-prefix">
+                  <span class="input-prefix">+91</span>
+                  {{ form.phone }}
+                </div>
+              </div>
+              <div>
+                <label class="form-label">Email Address</label>
+                <div class="input-container">
+                  <i class="fas fa-envelope input-icon"></i>
+                  {{ form.email }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Reason Checkboxes -->
+            <div class="form-group" style="margin-bottom: 2rem;">
+              <label class="form-label" style="margin-bottom: 1rem;">Reason for Appointment</label>
+              <div class="checkbox-group">
+                {% for radio in form.reason %}
+                  <label class="checkbox-item">
+                    {{ radio.tag }}
+                    <div class="checkbox-custom">
+                      <i class="fas fa-check checkbox-icon"></i>
+                    </div>
+                    <span class="checkbox-label">{{ radio.choice_label }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Admin Section -->
+            <div class="admin-section">
+              <h4>
+                <i class="fas fa-user-shield"></i>
+                Admin Controls
+              </h4>
+              
+              <!-- Status and Remarks Row -->
+              <div class="form-row form-group">
+                <div>
+                  <label for="edit-status" class="form-label">Status</label>
+                  <div class="input-container">
+                    <i class="fas fa-flag input-icon"></i>
+                    {{ form.status }}
+                    <i class="fas fa-chevron-down select-icon"></i>
+                  </div>
+                </div>
+                <div>
+                  <label for="edit-remarks" class="form-label">Remarks</label>
+                  <div class="input-container">
+                    <textarea id="id_remarks" name="remarks" class="form-textarea" placeholder="Add any remarks or notes..." rows="3"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" name="delete" value="1" class="btn btn-danger" id="deleteBtn" style="margin-left: .5rem; background:#ef4444; color:white; border:none; padding:.6rem 1rem; border-radius:.5rem;">
+              <i class="fas fa-trash" style="margin-right: .5rem;"></i>
+              Delete
+            </button>
+            <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
+            <button type="submit" class="btn btn-save">
+              <i class="fas fa-save" style="margin-right: 0.5rem;"></i>
+              Save Changes
+            </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="addModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>
+            <div class="modal-header-icon">
+              <i class="fas fa-edit"></i>
+            </div>
+            add Appointment
+          </h3>
+          <button type="button" class="modal-close" id="closeAddBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <form id="addAppointmentForm" method="POST" action="{% url 'admin_add_appointment' %}">
+            {% csrf_token %}
+            {% if addForm.errors %}
+              <div class="addForm-errors" style="border:1px solid #f5c6cb;background:#f8d7da;color:#721c24;padding:0.75rem;margin-bottom:1rem;border-radius:4px;">
+                {% if addForm.non_field_errors %}
+                  <div class="non-field-errors">
+                    {% for err in addForm.non_field_errors %}
+                      <p style="margin:0 0 .25rem;">{{ err }}</p>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <ul style="margin:.25rem 0 0;padding-left:1.25rem;">
+                  {% for field, errors in addForm.errors.items %}
+                    <li style="margin-bottom:.25rem;"><strong>{{ field }}</strong>
+                      <ul style="margin:.25rem 0 0;padding-left:1rem;">
+                        {% for e in errors %}
+                          <li>{{ e }}</li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            
+            <!-- Name Field -->
+            <div class="form-group">
+              <label for="{{ addForm.fullname.id_for_label }}" class="form-label">Full Name</label>
+              <div class="input-container">
+                <i class="fas fa-user input-icon"></i>
+                {{ addForm.fullname }}
+              </div>
+            </div>
+
+            <!-- Age and Enrollment Row -->
+            <div class="form-row form-group">
+              <div>
+                <label for="{{ addForm.age.id_for_label }}" class="form-label">Age</label>
+                <div class="input-container">
+                  <i class="fas fa-calendar-days input-icon"></i>
+                  {{ addForm.age }}
+                </div>
+              </div>
+              <div>
+                <label for="{{ addForm.enroll_no.id_for_label }}" class="form-label">Enrollment No.</label>
+                <div class="input-container">
+                  <i class="fas fa-id-card input-icon"></i>
+                  {{ addForm.enroll_no }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Department Field -->
+            <div class="form-group">
+              <label for="{{ addForm.department.id_for_label }}" class="form-label">Department</label>
+              <div class="input-container">
+                <i class="fas fa-building input-icon"></i>
+                {{ addForm.department }}
+                <i class="fas fa-chevron-down select-icon"></i>
+              </div>
+            </div>
+
+            <!-- Date and Slot Row -->
+            <div class="form-row form-group">
+              <div>
+                <label for="{{ addForm.date.id_for_label }}" class="form-label">Date</label>
+                <div class="input-container">
+                  <i class="fas fa-calendar input-icon"></i>
+                  {{ addForm.date }}
+                </div>
+              </div>
+              <div>
+                <label for="{{ addForm.slot.id_for_label }}" class="form-label">Slot</label>
+                <div class="input-container">
+                  <i class="fas fa-clock input-icon"></i>
+                  {{ addForm.slot }}
+                  <i class="fas fa-chevron-down select-icon"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact Info Row -->
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label">Phone Number</label>
+                <div class="input-container with-prefix">
+                  <span class="input-prefix">+91</span>
+                  {{ addForm.phone }}
+                </div>
+              </div>
+              <div>
+                <label class="form-label">Email Address</label>
+                <div class="input-container">
+                  <i class="fas fa-envelope input-icon"></i>
+                  {{ addForm.email }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Reason Checkboxes -->
+            <div class="form-group" style="margin-bottom: 2rem;">
+              <label class="form-label" style="margin-bottom: 1rem;">Reason for Appointment</label>
+              <div class="checkbox-group">
+                {% for radio in addForm.reason %}
+                  <label class="checkbox-item">
+                    {{ radio.tag }}
+                    <div class="checkbox-custom">
+                      <i class="fas fa-check checkbox-icon"></i>
+                    </div>
+                    <span class="checkbox-label">{{ radio.choice_label }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Admin Section -->
+            <div class="admin-section">
+              <h4>
+                <i class="fas fa-user-shield"></i>
+                Admin Controls
+              </h4>
+              
+              <!-- Status and Remarks Row -->
+              <div class="form-row form-group">
+                <div>
+                  <label for="edit-status" class="form-label">Status</label>
+                  <div class="input-container">
+                    <i class="fas fa-flag input-icon"></i>
+                    {{ addForm.status }}
+                    <i class="fas fa-chevron-down select-icon"></i>
+                  </div>
+                </div>
+                <div>
+                  <label for="edit-remarks" class="form-label">Remarks</label>
+                  <div class="input-container">
+                    <textarea id="id_remarks" name="remarks" class="form-textarea" placeholder="Add any remarks or notes..." rows="3"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" id="cancelAddBtn">Cancel</button>
+            <button type="submit" class="btn btn-save">
+              <i class="fas fa-save" style="margin-right: 0.5rem;"></i>
+              Save
+            </button>
+        </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="{% static 'js/admin/dashboard.js' %}"></script>
+
+  {% if form.errors %}
+    <script>
+      // If the server returned form errors, open the edit modal so the admin can see them
+      document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('editModal');
+        if (modal) modal.style.display = 'block';
+      });
+    </script>
+  {% endif %}
+{% endblock %}

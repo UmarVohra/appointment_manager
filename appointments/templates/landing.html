@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Welcome - Appointment System{% endblock %} 
+
+{% block style %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+/>
+<link rel="stylesheet" href="{% static "css/landing.css" %}">
+{% endblock %} 
+{% block content %}
+<!-- Header -->
+<header id="header" class="section-clickable">
+  <div class="header-container">
+    <div class="header-content">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <img src="{% static 'images/lj_logo.png' %}" alt="">
+        </div>
+        <span class="logo-text" contenteditable="false">LJ Consultancy</span>
+      </div>
+      <button
+        class="header-button coral-gradient hover-lift"
+        contenteditable="false"
+        onclick="location.href='book-appointment'"
+      >
+        Book Appointment
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section id="hero" class="gradient-bg curved-divider section-clickable">
+  <div class="hero-container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <h1 class="hero-title" contenteditable="false">
+          Your Mental Health
+          <span class="teal-text" contenteditable="false">Matters</span>
+        </h1>
+        <p class="hero-subtitle" contenteditable="false">
+          Connect with caring counselors who understand your journey. Book
+          confidential sessions that fit your schedule.
+        </p>
+        <div class="hero-buttons">
+          <button
+            class="hero-button-primary coral-gradient hover-lift"
+            contenteditable="false"
+            onclick="location.href='book-appointment'"
+          >
+            Schedule Today
+          </button>
+          <button
+            class="hero-button-secondary hover-lift"
+            contenteditable="false"
+          >
+            Learn More
+          </button>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img
+          src="{% static 'images/landing_image.png' %}"
+          alt="friendly illustration of diverse students talking with counselor in modern office, soft pastel colors, warm lighting"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services Section -->
+<section id="services" class="section-clickable">
+  <div class="services-container">
+    <div class="services-header">
+      <h2 class="services-title" contenteditable="false">How We Support You</h2>
+      <p class="services-subtitle" contenteditable="false">
+        Professional counseling services designed for student life
+      </p>
+    </div>
+    <div class="services-grid">
+      <div
+        id="service-1"
+        class="service-card blue-bg hover-lift section-clickable"
+      >
+        <div class="service-icon blue-gradient">
+          <i class="fas fa-comments"></i>
+        </div>
+        <h3 class="service-title" contenteditable="false">
+          Individual Counseling
+        </h3>
+        <p class="service-description" contenteditable="false">
+          One-on-one sessions tailored to your personal needs and goals
+        </p>
+      </div>
+      <div
+        id="service-2"
+        class="service-card green-bg hover-lift section-clickable"
+      >
+        <div class="service-icon mint-gradient">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3 class="service-title" contenteditable="false">Group Sessions</h3>
+        <p class="service-description" contenteditable="false">
+          Connect with peers facing similar challenges in supportive group
+          settings
+        </p>
+      </div>
+      <div
+        id="service-3"
+        class="service-card orange-bg hover-lift section-clickable"
+      >
+        <div class="service-icon coral-gradient">
+          <i class="fas fa-clock"></i>
+        </div>
+        <h3 class="service-title" contenteditable="false">Crisis Support</h3>
+        <p class="service-description" contenteditable="false">
+          24/7 emergency support when you need immediate assistance
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Doctor Details Card -->
+<section id="counselor" class="gradient-bg section-clickable">
+  <div class="counselor-container">
+    <div class="counselor-header">
+      <h2 class="counselor-title" contenteditable="false">
+        Meet Your Counselor
+      </h2>
+      <p class="counselor-subtitle" contenteditable="false">
+        Experienced professionals dedicated to your wellbeing
+      </p>
+    </div>
+    <div id="doctor-card" class="doctor-card hover-lift section-clickable">
+      <div class="doctor-content">
+        <div class="doctor-image-container">
+          <img
+            src="{{ doctor.profile.image.url}}"
+            alt="Dr. Sarah Johnson"
+            class="doctor-image"
+          />
+        </div>
+        <div class="doctor-info">
+          <h3 class="doctor-name" contenteditable="false">Dr. {{doctor.first_name}}</h3>
+          <p class="doctor-title" contenteditable="false">
+            {{doctor.profile.qualification}}
+          </p>
+          <p class="doctor-description" contenteditable="false">
+            Specializing in anxiety, depression, and academic stress. 10+ years
+            helping students navigate college challenges and develop healthy
+            coping strategies.
+          </p>
+          <div class="doctor-contact">
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <span contenteditable="false">{{doctor.email}}</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-phone"></i>
+              <span contenteditable="false">+91 {{doctor.profile.phone}}</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-calendar"></i>
+              <span contenteditable="false">Mon-Sat, 11AM-3PM</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-location-dot"></i>
+              <span contenteditable="false">Lj Law Department, Basement</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section id="cta" class="section-clickable">
+  <div class="cta-container">
+    <h2 class="cta-title" contenteditable="false">
+      Ready to Take the First Step?
+    </h2>
+    <p class="cta-subtitle" contenteditable="false">
+      Your mental health journey starts with a single appointment. We're here to
+      support you every step of the way.
+    </p>
+    <button
+      class="cta-button coral-gradient hover-lift"
+      contenteditable="false"
+      onclick="location.href='book-appointment'"
+    >
+      Book Your Appointment Now
+    </button>
+  </div>
+</section>
+
+<!-- Footer -->
+
+<footer id="footer" class="gradient-bg section-clickable">
+  <div class="footer-container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <img src="{% static 'images/lj_logo.png' %}" alt="">
+          </div>
+          <span class="footer-logo-text" contenteditable="false"
+            >LJ Consultancy</span
+          >
+        </div>
+        <p class="footer-description" contenteditable="false">
+          Supporting student mental health and wellbeing through compassionate,
+          professional counseling services.
+        </p>
+        <div class="social-links">
+          <span class="social-link hover-lift">
+            <i class="fab fa-facebook"></i>
+          </span>
+          <span class="social-link hover-lift">
+            <i class="fab fa-twitter"></i>
+          </span>
+          <span class="social-link hover-lift">
+            <i class="fab fa-instagram"></i>
+          </span>
+        </div>
+      </div>
+      <div>
+        <h4 class="footer-section-title" contenteditable="false">
+          Quick Links
+        </h4>
+        <ul class="footer-links">
+          <li>
+            <span class="footer-link" contenteditable="false">About Us</span>
+          </li>
+          <li>
+            <span class="footer-link" contenteditable="false">Services</span>
+          </li>
+          <li>
+            <span class="footer-link" contenteditable="false">Resources</span>
+          </li>
+          <li><span class="footer-link" contenteditable="false">FAQs</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-section-title" contenteditable="false">
+          Contact Info
+        </h4>
+        <ul class="footer-links">
+          <li>
+            <span class="footer-link" contenteditable="false"
+              >Phone: +91 {{doctor.profile.phone}}</span
+            >
+          </li>
+          <li>
+            <span class="footer-link" contenteditable="false"
+              >Email: {{doctor.email}}</span
+            >
+          </li>
+          <li>
+            <span class="footer-link" contenteditable="false"
+              >Location: Lj Law Department, Basement</span
+            >
+          </li>
+          <li>
+            <span class="footer-link" contenteditable="false"
+              >Hours: Mon-Sat, 11AM-3PM</span
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock %}
