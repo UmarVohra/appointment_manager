@@ -65,7 +65,7 @@ def book_appointment(request):
                 )
 
                 # Send email via SendGrid API
-                sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+                sg = SendGridAPIClient(os.getenv("EMAIL_HOST_PASSWORD"))
                 response = sg.send(message)
                 print("SendGrid status:", response.status_code)
 
