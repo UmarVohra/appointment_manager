@@ -10,7 +10,7 @@ ENV/
 env/
 
 # SQLite database
-db.sqlite3
+# db.sqlite3
 
 # Static files collected for deployment
 staticfiles/
