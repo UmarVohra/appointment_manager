@@ -88,7 +88,7 @@ def admin_login(request):
             username = user.username
         except User.DoesNotExist:
             messages.error(request, "Invalid Email or Password")
-            return render(request, "login.html")
+            return render(request, "admin/login.html")
 
         
         user = authenticate(request, username=username, password=password)
