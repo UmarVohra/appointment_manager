@@ -17,6 +17,8 @@ from django.http import HttpResponse
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Case, When, IntegerField
 from django.template.loader import render_to_string
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from dotenv import load_dotenv
 import os
 load_dotenv()
@@ -33,6 +35,7 @@ def landing_page(request):
 
 def book_appointment(request):
     booked = list(Appointment.objects.values_list('date', 'slot'))
+
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         
@@ -43,19 +46,9 @@ def book_appointment(request):
                 # prepare email data
                 subject = "Appointment Confirmation ✅"
                 from_email = os.getenv("DEFAULT_FROM_EMAIL")
-                to_email = [booking.email]  # send to the user
+                to_email = booking.email  # send to the user
 
-                # plain text (fallback)
-                text_content = f"""
-                Dear {booking.fullname},
-
-                Your appointment has been booked successfully.
-                Date: {booking.date}
-                Slot: {booking.slot}
-                Department: {booking.department}
-                """
-
-                # HTML version
+                # HTML content
                 html_content = render_to_string("emails/appointment_confirmation.html", {
                     "name": booking.fullname,
                     "date": booking.date,
@@ -63,9 +56,18 @@ def book_appointment(request):
                     "department": booking.department,
                 })
 
-                msg = EmailMultiAlternatives(subject, text_content, from_email, to_email)
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
+                # SendGrid Mail object
+                message = Mail(
+                    from_email=from_email,
+                    to_emails=to_email,
+                    subject=subject,
+                    html_content=html_content
+                )
+
+                # Send email via SendGrid API
+                sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
+                response = sg.send(message)
+                print("SendGrid status:", response.status_code)
 
                 messages.success(request, 'Appointment booked successfully! Confirmation email sent.')
                 return redirect('landing_page')
@@ -77,6 +79,7 @@ def book_appointment(request):
                     messages.error(request, f'An error occurred while booking the appointment. Please try again. {str(e)}')
     else:
         form = AppointmentForm()
+    
     return render(request, 'book_appointment.html', {'form': form, 'booked': booked})
 
 def admin_login(request):
