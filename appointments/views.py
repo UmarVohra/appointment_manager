@@ -17,7 +17,9 @@ from django.http import HttpResponse
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Case, When, IntegerField
 from django.template.loader import render_to_string
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 # Create your views here.
 # Placeholder for appointments app views
 
@@ -30,6 +32,7 @@ def landing_page(request):
 
 
 def book_appointment(request):
+    booked = list(Appointment.objects.values_list('date', 'slot'))
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         
@@ -39,7 +42,7 @@ def book_appointment(request):
 
                 # prepare email data
                 subject = "Appointment Confirmation ✅"
-                from_email = "uvilyas987@gmail.com"
+                from_email = os.getenv("DEFAULT_FROM_EMAIL")
                 to_email = [booking.email]  # send to the user
 
                 # plain text (fallback)
@@ -71,10 +74,9 @@ def book_appointment(request):
                 if 'unique_constraint' in str(e).lower():
                     messages.error(request, 'This slot is already booked. Please choose another slot.')
                 else:
-                    messages.error(request, 'An error occurred while booking the appointment. Please try again.')
+                    messages.error(request, f'An error occurred while booking the appointment. Please try again. {str(e)}')
     else:
         form = AppointmentForm()
-        booked = list(Appointment.objects.values_list('date', 'slot'))
     return render(request, 'book_appointment.html', {'form': form, 'booked': booked})
 
 def admin_login(request):
