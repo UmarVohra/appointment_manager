@@ -13,6 +13,7 @@ cycler==0.12.1
 dj-database-url==3.0.1
 Django==5.2.6
 dotenv==0.9.9
+et_xmlfile==2.0.0
 fonttools==4.60.0
 gunicorn==23.0.0
 idna==3.10
@@ -27,6 +28,7 @@ matplotlib==3.10.6
 mdurl==0.1.2
 more-itertools==10.8.0
 numpy==2.3.3
+openpyxl==3.1.5
 packaging==25.0
 pandas==2.3.2
 pillow==11.3.0
