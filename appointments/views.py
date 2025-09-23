@@ -56,18 +56,15 @@ def book_appointment(request):
                     "department": booking.department,
                 })
 
-                # SendGrid Mail object
-                message = Mail(
-                    from_email=from_email,
-                    to_emails=to_email,
+                # Gmail SMTP via Django
+                email = EmailMultiAlternatives(
                     subject=subject,
-                    html_content=html_content
+                    body=html_content,
+                    from_email=from_email,
+                    to=[to_email]
                 )
-
-                # Send email via SendGrid API
-                sg = SendGridAPIClient(os.getenv("EMAIL_HOST_PASSWORD"))
-                response = sg.send(message)
-                print("SendGrid status:", response.status_code)
+                email.attach_alternative(html_content, "text/html")
+                email.send()
 
                 messages.success(request, 'Appointment booked successfully! Confirmation email sent.')
                 return redirect('landing_page')
