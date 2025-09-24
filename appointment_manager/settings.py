@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-yar5y942g0)=1t^e$d-^ce!7v^e$o4c1k%76o)&+e@50e3dp0v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [os.environ.get("RENDER_EXTERNAL_HOSTNAME", ""), '192.168.1.6', '127.0.0.1']
+ALLOWED_HOSTS = [os.environ.get("RENDER_EXTERNAL_HOSTNAME", ""), '192.168.1.6', '127.0.0.1', 'UmarVohra.pythonanywhere.com']
 
 
 # Application definition
